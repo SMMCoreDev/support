@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 
 #TCP port
 PORT=18100
-RPC=18100
+RPC=18101
 apt-get -qq install build-essential && apt-get -qq install libtool libevent-pthreads-2.0-5 autotools-dev autoconf automake && apt-get -qq install libssl-dev && apt-get -qq install libboost-all-dev && apt-get -qq install software-properties-common && add-apt-repository -y ppa:bitcoin/bitcoin && apt update && apt-get -qq install libdb4.8-dev && apt-get -qq install libdb4.8++-dev && apt-get -qq install libminiupnpc-dev && apt-get -qq install libqt4-dev libprotobuf-dev protobuf-compiler && apt-get -qq install libqrencode-dev && apt-get -qq install git && apt-get -qq install pkg-config && apt-get -qq install libzmq3-dev
 #Clear keyboard input buffer
 function clear_stdin { while read -r -t 0; do read -r; done; }
@@ -111,7 +111,6 @@ sudo apt-get -y dist-upgrade
 sudo apt-get -y autoremove
 sudo apt-get -y install wget nano htop jq
 sudo apt-get -y install libzmq3-dev
-sudo apt-get -y install libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-program-options-dev libboost-test-dev libboost-thread-dev -y
 sudo apt-get -y install libevent-dev -y
 sudo apt-get install unzip
 sudo apt install unzip
@@ -120,11 +119,7 @@ sudo add-apt-repository ppa:bitcoin/bitcoin -y
 sudo apt-get -y update
 sudo apt-get -y install libdb4.8-dev libdb4.8++-dev -y
 sudo apt-get -y install libminiupnpc-dev
-sudo apt-get -y install fail2ban
-sudo service fail2ban restart
-sudo apt-get install libdb5.3++-dev libdb++-dev libdb5.3-dev libdb-dev && ldconfig -y
 sudo apt-get install -y unzip libzmq3-dev build-essential libssl-dev libboost-all-dev libqrencode-dev libminiupnpc-dev libboost-system1.58.0 libboost1.58-all-dev libdb4.8++ libdb4.8 libdb4.8-dev libdb4.8++-dev libevent-pthreads-2.0-5 -y
-sudo apt-get install libdb5.3++-dev libdb++-dev libdb5.3-dev libdb-dev && ldconfig -y
    fi
 
 #Network Settings
@@ -216,30 +211,20 @@ EOF
 
     #Starting daemon first time just to generate masternode private key
     smmd -daemon
-echo -ne '[##                 ] (15%)\r'
-sleep 6
-echo -ne '[######             ] (30%)\r'
-sleep 6
-echo -ne '[########           ] (45%)\r'
-sleep 6
-echo -ne '[##############     ] (72%)\r'
-sleep 6
-echo -ne '[###################] (100%)\r'
-echo -ne '\n'
-
-    #Generate masternode private key
+sleep 7
+while true;do
     echo -e "${YELLOW}Generating masternode private key...${NC}"
     genkey=$(smm-cli masternode genkey)
-    if [ -z "$genkey" ]; then
-        echo -e "${RED}ERROR: Can not generate masternode private key.${NC} \a"
-        echo -e "${RED}ERROR: Reboot VPS and try again or supply existing genkey as a parameter.${NC}"
-        exit 1
+    if [ "$genkey" ]; then
+        break
+    fi
+sleep 7
+done
     fi
     
     #Stopping daemon to create smm.conf
     smm-cli stop
     sleep 5
-fi
 # Create smm.conf
 cat <<EOF > ~/.smm/smm.conf
 rpcuser=$rpcuser
@@ -257,9 +242,17 @@ externalip=$publicip
 bind=$publicip
 masternodeaddr=$publicip
 masternodeprivkey=$genkey
+addnode=176.31.206.190:18100
+addnode=212.237.20.31:18100
+addnode=212.237.20.31:18100
+addnode=51.75.163.202:18100
+addnode=51.255.228.252:18100
+addnode=5.135.245.231:18100
+addnode=193.70.70.144:18100
+addnode=92.222.50.28:18100
  
 EOF
-    smmd -daemon
+    smmd -daemon -reindex
 #Finally, starting daemon with new smm.conf
 printf '#!/bin/bash\nif [ ! -f "~/.smm/smm.pid" ]; then /usr/local/bin/smmd -daemon ; fi' > /root/smmauto.sh
 chmod -R 755 smmauto.sh
