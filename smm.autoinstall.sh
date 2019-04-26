@@ -184,8 +184,8 @@ fi
 #Installing Daemon
 cd ~
 rm -rf /usr/local/bin/smm*
-wget https://github.com/SMMCoreDev/smm_core/releases/download/v1.0.0/smm-core-1.0.0-linux-daemon.tgz
-tar -xvf smm-core-1.0.0-linux-daemon.tgz
+wget https://github.com/SMMCoreDev/smm_core/releases/download/1.0.1/smm-core-1.0.1-linux-daemon.tgz
+tar -xvf smm-core-1.0.1-linux-daemon.tgz
 sudo chmod -R 755 smm-cli
 sudo chmod -R 755 smmd
 cp -p -r smmd /usr/local/bin
